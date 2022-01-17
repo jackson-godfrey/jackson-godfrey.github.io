@@ -1,0 +1,902 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym,amsfonts,amssymb,amsthm,amsmath}
+\usepackage{graphicx}
+\usepackage[shortlabels]{enumitem}
+
+\usepackage{tikz-cd}
+\usepackage{mathtools}
+
+\usepackage{amsthm, thmtools}
+\usepackage{
+hyperref,cleveref,
+}
+
+\declaretheorem[name=Theorem,
+refname={theorem,theorems},
+Refname={Theorem,Theorems}, 
+numberwithin=section]{theorem}
+
+\declaretheorem[name=Lemma,
+refname={lemma,lemmas},
+Refname={Lemma,Lemmas}, 
+numberwithin=section]{lemma}
+
+\declaretheorem[name=Corollary,
+refname={corollary,corollaries},
+Refname={Corollary,Corollaries}, 
+sharenumber=theorem]{corollary}
+
+\declaretheorem[name=Definition,
+style = definition, 
+refname={definition, definitions},
+Refname={Definition, Definitions},
+sharenumber=theorem]{definition}
+
+\declaretheorem[name=Proposition,
+style = definition, 
+refname={proposition, propositions},
+Refname={Proposition, Propositions},
+sharenumber=theorem]{proposition}
+
+\declaretheorem[name=Remark,
+style = definition, 
+refname={remark, remarks},
+Refname={Remark, Remarks},
+sharenumber=theorem]{remark}
+
+\declaretheorem[name=Example,
+style = definition, 
+refname={example, examples},
+Refname={Example, Examples},
+sharenumber=theorem]{example}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\setlength{\parindent}{0.25in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.8in}
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{18pt}
+\allowdisplaybreaks
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\ip}[2]{\langle #1, #2 \rangle}
+
+\title{Transversality - Chapter 2 - (Golubitsky, Guillemin)}
+\author{Jackson Godfrey}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section*{Preliminaries}
+\subsection*{Multi Indices}
+Suppose $f: \RR^n \to \RR$ is a $k$-times differentiable function. Let $\alpha = (\alpha_1, \dots, \alpha_n)$ be a tuple of non negative integers with $|\alpha| := \alpha_1 + \dots + \alpha_n$. The following definition gives a succinct way to write partial derivatives:
+$$
+\frac{\partial^{|\alpha|}}{\partial x^\alpha} f := \frac{\partial^{|\alpha|}}{\partial x_1^{\alpha_1} \dots \partial x_n^{\alpha_n}} f
+$$
+In the case $\alpha = (0, \dots, 0)$, define the above as simply $f$. Therefore $f$ is $k-$times differentiable or $C^k$ if $\frac{\partial^{|\alpha|}}{\partial x^\alpha} f$ exists and is continuous for all $\alpha$ such that $|\alpha| \leq k$. We may, even more succinctly, write the above as $D^\alpha f$. \\
+
+We may also write $(x-a)^\alpha$, for $x, a \in \RR^n$. By this we implicitly mean:
+$$
+(x_1-a_1)^{\alpha_1} \dots (x_n - a_n)^{\alpha_n}
+$$
+
+\subsection*{Taylor's theorem}
+
+\begin{theorem} [Taylor's Theorem]
+    Let $f: U\subset \RR \to \RR$ be $C^\infty$. Then for all $k \geq 1$ and $a\in U$ there exists a smooth function $h_k: U \to \RR$ such that 
+    $$
+    f(x) = f(a) + f'(a) (x-a) + \dots + \frac{f^{(k)}(a)}{k!} (x-a)^k + h_k(x) (x-a)^k 
+    $$
+    There is a multivariate Taylor's theorem too, the expansion of $f$ before the 'remainder' above is the multivariate Taylor expansion given below. 
+\end{theorem}
+
+\subsection*{Taylor expansions}
+Let $f: \RR \to \RR$ be a smooth function, or more generally just $k$-times differentiable. The \emph{Taylor expansion of order $k'$} at $a\in \RR$ is the following, for $k' \leq k$: 
+$$
+\sum_{n=0}^{k'} \frac{f^{(n)}(a)}{n!} (x-a)^n
+$$
+If instead $F: \RR^n \to \RR$ is $k$-times differentiable, the Taylor expansion of order $k'$ at $a \in \RR^n$ is the following:
+$$
+\sum_{|\alpha| \leq k'} \frac{D^\alpha(a)}{\alpha_1! \dots \alpha_n !} (x - a)^\alpha
+$$
+
+\subsection*{Algebra of Germs}
+The following theorem provides justification for the algebraic definition of Jet bundles given later. \\
+
+Let $X = \RR^n$ be a smooth manifold, $C_a^\infty(X)$ the algebra of germs of smooth functions on some neighbourhood of $a$. Let $\mathfrak{m}_a$ be the maximal ideal consisting of those germs which vanish. 
+
+\begin{theorem}
+    Suppose $f: U \to \RR$ is some smooth function on a neighbourhood $U$ of $a$. Then $[f] \in (\mathfrak{m}_a)^{k+1}$ if and only if the first $k$ derivatives of $f$ vanish at $a$. 
+\end{theorem}
+
+\begin{proof}
+    If the first $k$ partial derivatives of $f$ vanish at $a$, then the multivariate version of Taylor's theorem says that $f(x)$ is a sum of functions of the form $h(x) (x-a)^{\alpha}$ with $|\alpha| = k+1$, so $[f] \in (\mathfrak{m}_x)^{k+1}$. \\
+    
+    Now suppose that $[f]\in (\mathfrak{m}_x)^{k+1}$ has the simple form $[f] = [h\cdot f_1 \dots  f_{k+1}]$ for $[f_i] \in \mathfrak{m}_x$. Use the generalized Leibniz rule for arbitrary products to see that the partials of $f$ vanish up to order $k$. A general element of $(\mathfrak{m}_x)^{k+1}$ is just a sum of elements of the preceding form, so we are done. 
+\end{proof}
+
+\section{Jet Bundles (page 37)}
+\subsection{Definitions and Basic Facts}
+
+\begin{definition}
+    Let $X, Y$ be smooth manifolds, $x\in X, y\in Y$ with $f, g: X \to Y$ smooth maps, mapping $x$ to $y$. (If $f(x) = g(x)$ we say that $f \sim_0 g$ at $x$). 
+    \begin{itemize}
+        \item $f$ and $g$ have \emph{first order contact} at $x$ if $(df)_x = (dg)_x$ as maps $T_x X \to T_y Y$. We denote this by $f \sim_1 g$ at $x$. 
+        
+        \item $f$ and $g$ have \emph{k-th order contact} at $x$ if $df$ has $(k-1)$st order contact with $dg$ as maps $TX \to TY$, at \emph{every} point of $T_x X$. We write that $f \sim_k g$ at $x$, or $j^k f (x)= j^k g (x)$. 
+        
+    \end{itemize}
+     Now $\sim_k$ as $x$ is an equivalence relation for all $k$; symmetry and reflexivity are clear. Transitivity follows easily from induction. 
+\end{definition}
+
+\begin{definition}
+    Let $J^k(X, Y)_{x, y}$ denote the set of equivalence classes under "$\sim_k$ at $x$" of smooth maps with $f(x) = y$, sometimes written as ${}_{x}J^k(X, Y)_y$. The $k$-th \emph{Jet Bundle} is defined, as a set, to be
+    $$
+    J^k(X, Y) := \bigsqcup_{(x, y)\in X\times Y} J^k(X, Y)_{x, y}
+    $$
+    An element $\sigma \in J^k(X, Y)$ is called a $k$-jet of mappings from $X$ to $Y$. 
+\end{definition}
+
+\begin{remark}
+    The $k$-th Jet Bundle comes with two maps, called the source and target maps respectively:
+    \begin{align*}
+        \alpha: J^k(X, Y) & \to X \\
+        \beta: J^k(X, Y) & \to Y \\ 
+    \end{align*}
+    Given a smooth map $f:X \to Y$, we also have a canonical map 
+    $$
+    j^k f: X \to J^k(X, Y)
+    $$
+    sending $x$ to the equivalence class of $f$ in $J^k(X, Y)_{x, f(x)}$. This map is sometimes called the $k$-jet of $f$, or the $k$-th jet prolongation of $f$. After giving $J^k(X, Y)$ the structure of a smooth manifold, we will show that $j^k f$ is smooth. Much later, we will show that $j^k: C^\infty(X, Y) \to C^\infty(X, J^k(X, Y))$ is continuous in the Whitney $C^\infty$ topology. 
+\end{remark}
+
+
+\begin{lemma}
+    Let $U\subset \RR^n$ be open, $f, g: U \to \RR^m$ smooth maps. Then $f \sim_k g$ at $p \in U$ if and only if
+    $$
+    \frac{\partial^{|\alpha|} f_i}{\partial x^\alpha} (p) = \frac{\partial^{|\alpha|} g_i}{\partial x^\alpha} (p) 
+    $$
+    for all $i$ and $\alpha$ with $|\alpha| \leq k$. Here $x_1, \dots, x_n$ are the coordinates on $U$. 
+\end{lemma}
+
+\begin{proof}
+    The base case is trivial, ie $k=1$. Assume the lemma is true for $k-1$. Now $df: TU = U \times \RR^n \to \RR^m \times \RR^m = T\RR^m$ is given by:
+    
+    $$
+    (x, y) \mapsto (f(x), \overline{f_1}(x, y), \dots, \overline{f_m}(x, y))
+    $$
+    where 
+    $$
+    \overline{f_i}(x, y) = \sum_{j = 1}^n \frac{\partial f_i}{\partial x_j} (x) y_j
+    $$
+    Similarly for $dg$. Now by assumption, $df \sim_{k-1} dg$ at every point $(p, v) \in \{p \} \times \RR^n$. By the induction hypothesis this implies that the partial derivatives of $df$ and $dg$ agree, for $|\alpha|\leq k-1$: 
+    $$
+    \frac{\partial^{|\alpha|} \overline{f_i}}{\partial x^\alpha} (p, v) = \frac{\partial^{|\alpha|} \overline{g_i}}{\partial x^\alpha} (p, v)
+    $$
+    for all $i$. Simply take $v = (0, \dots, 1, \dots, 0)$ to obtain:
+    $$
+    \frac{\partial^{|\alpha|} }{\partial x^\alpha} \frac{\partial f_i}{\partial x_j} (p) = \frac{\partial^{|\alpha|} }{\partial x^\alpha} \frac{\partial g_i}{\partial x_j} (p)
+    $$
+    Obviously in this way we obtain all partial derivatives with $|\alpha| \leq k$. \\
+    
+    In the other direction, knowing the order $\leq k$ partial derivatives of $f$ tells us the order $\leq k-1$ partial derivatives of $df$. 
+\end{proof}
+
+\begin{corollary} \label{taylor corollary}
+    $f, g: U \to \RR^m$ have $k$-th order contact if and only if their Taylor polynomials agree up to and including order $k$. 
+\end{corollary}
+
+\begin{lemma} \label{well definition}
+    Given the following
+    $$
+    \begin{tikzcd}
+    \RR^n \arrow[r] & \RR^m \arrow[r] & \RR^l \\ 
+    U \arrow[u, hook] \arrow[r, "{f_1, f_2}"] & V \arrow[u, hook] \arrow[r, "{g_1, g_2}"] & \RR^l \arrow[u, equal] \\ 
+    \end{tikzcd}
+    $$
+    such that $f_1 \sim_k f_2$ at $u$, $g_1 \sim_k g_2$ at $v = f_1(u)=f_2(u)$. Then $g_1 \circ f_1 \sim_k g_2 \circ f_2$ at $u$.  
+\end{lemma}
+
+\begin{proof}
+    Proceed by induction. For $k=1$, 
+    $$
+    d(g_1\circ f_1)_u = d(g_1)_v \circ d(f_1)_u = d(g_2)_v \circ d(f_2)_u = d(g_2\circ f_2)_u 
+    $$
+    Now assume true for $k-1$. We need to show that $g_1 \circ f_1 \sim_k g_2 \circ f_2$ at $u$. But we know that $dg_1 \sim_{k-1} dg_2$ at every point of $T_v V$ and $df_1 \sim_{k-1} df_2$ at every point of $T_u U$, so $dg_1 \circ df_1 \sim_{k-1} dg_2 \circ df_2$ at each point of $T_u U$ by the induction hypothesis. Apply the chain rule again to conclude. \\
+\end{proof}
+
+\begin{proposition}
+    Let $h: Y \to Z$ be a smooth map of smooth manifolds. Then $h$ induces a map 
+    $$h_*: J^k(X, Y) \to J^k(X, Z)$$
+    by sending $[f] \in J^k(X, Y)_{x, y}$ to $[h\circ f] \in J^k(X, Z)_{x, h(x)}$. If $g: Z\to W$ is smooth also, then $(g\circ h)_* = g_* \circ h_*$. Also $(id_Y)_* = id_{J^k(X, Y)}$. We notice that this says $J^k(X, -)$ is a covariant functor on the category of manifolds.
+\end{proposition}
+\begin{proof}
+    $h_*$ is well defined by \Autoref{well definition}. The rest follows easily. \\
+\end{proof}
+
+\begin{proposition}
+    Let $g:Z \to X$ be a surjective smooth map. Then $g$ induces a map 
+    $$g^*: J^k(X, Y) \to J^k(Z, Y)$$
+    by sending $[f] \in J^k(X, Y)_{x, y}$ to $[f\circ g] \in J^k(Z, Y)_{g^{-1}(x), y}$. The contravariant functorial properties also hold, so that if $g$ is a diffeomorphism, $g_*$ is a bijection. Most of the time we will assume that $g$ is a diffeomorphism when inducing the corresponding map. \\
+\end{proposition}
+
+
+\begin{remark} \label{commuting stars}
+    Suppose $h: Y \to Z$ and $g: Z \to X$ a diffeomorphism. Then $h_* \circ g^* = g^* \circ h_*$. That is, upper $*$'s and lower $*$'s commute. We have the following commutative diagram: 
+    $$
+    \begin{tikzcd}
+        J^k(X, Y) \arrow[r, "h_*"] \arrow[d, "g^*"] & J^k(X, Z) \arrow[d, "g^*"] \\ 
+        J^k(W, Y) \arrow[r, "h_*"] & J^k(W, Z) \\ 
+    \end{tikzcd}
+    $$
+\end{remark}
+
+
+\subsection{Smooth Structure}
+Let $A_n^k$ be the vector space of polynomials in $n$ variables with degree $\leq k$ with zero constant term. Choosing as coordinates for $A_n^k$ the coefficients of the polynomials, we give $A_n^k$ the structure of a smooth manifold. Let $B_{n, m}^k = \oplus_{i=1}^m A_n^k = (A_n^k)^m$ also be a smooth manifold. \\
+
+Let $U \subset \RR^n$ be open and $f: U \to \RR$ be smooth. Define a map $T_kf: U \to A_n^k$, sending $x_0$ to the Taylor expansion of $f$ at $x_0$ up to order $k$.
+
+\begin{remark}
+    Suppose that $U, V$ are open subsets of smooth manifolds $X, Y$ respectively. For any smooth map $f: U \to V$ mapping $x$ to $y$, we may find a smooth map $F: X \to V$ such that $f \equiv F$ on some open neighbourhood $U' \subset U$ of $x$ using bump functions. Since $f$ agrees with $F$ on an open neighbourhood of $x$, it is clear that $[f] = [F|_{U}] \in J^k(U, V)$. In this way we obtain a natural inclusion 
+    $$
+    J^k(U, V) \subset J^k(X, Y)
+    $$
+    by sending $[F|_{U}] \mapsto [F]$. We may even identify, using this the same idea, the set $J^k(U, V)$ with $(\alpha \times \beta)^{-1} (U\times V)$, where $\alpha\times \beta: J^k(X, Y) \to X\times Y$. \\
+\end{remark}
+
+\begin{proposition}
+    Let $U\subset \RR^n$, $V\subset \RR^m$ be open. Then there is a bijection: 
+    \begin{align*}
+        T_{U, V}: J^k(U, V) & \to U \times V \times B_{n, m}^k \\ 
+        [f]  \longmapsto & (x_0, y_0, T_k f_1(x_0), \dots, T_k f_m(x_0) )
+    \end{align*}
+    Here $x_0 = \alpha(f)$ and $y_0 = \beta(f)$ are the source and targets. 
+\end{proposition}
+
+\begin{proof}
+    This map is well defined and injective both by \Autoref{taylor corollary}. For surjectivity just choose the class of the polynomial function resulting from an element on the right. \\
+\end{proof}
+
+
+\begin{lemma} \label{convoluted but smooth}
+    Let $f: U \to U'$ be a smooth map between open subsets of $\RR^n$, $g: V \to V'$ a smooth diffeomorphism between open subsets of $\RR^m$. Then the following is a smooth map: 
+    $$
+    T_{U', V'} \circ (g^{-1})^* \circ h_* \circ T_{U, V}^{-1}: \quad U\times V \times B_{n, m}^k \longrightarrow U'\times V' \times B_{n, m}^k
+    $$
+\end{lemma}
+
+\begin{proof} 
+    Let $D = (x_0, y_0, f_1, \dots, f_m)$ be an element of the domain. Define $f: U \to \RR^m$ by 
+    $$
+    f(x) = y_0 + (f_1(x-x_0), \dots, f_m(x-x_0)) 
+    $$
+    Then $T_{U, V} ([f]) = D$. So
+    \begin{align*}
+        \left( T_{U', V'}\circ (g^{-1})^* \circ h_* \circ T_{U, V}^{-1} \right) (D) & = T_{U', V'} ([h\circ f \circ g^{-1}]_{g(x_0), h(y_0)}) \\ 
+        & = (g(x_0), h(y_0), T_k \left( (h \circ f \circ g^{-1})_1\right) (g(x_0)), \dots)
+    \end{align*}
+    
+    It thus suffices to show that $D \mapsto T_k \left( (h\circ f \circ g^{-1})_i\right) (g(x_0))$ is smooth for all $i$. Set $\phi = h \circ f \circ g^{-1}$. Then 
+    $$
+    T_k \left((\phi)_i\right) (g(x_0)) = \sum_{1\leq |\alpha| \leq k} \frac{\partial^{|\alpha|} \phi_i}{\partial x^{\alpha}} (g(x_0)) \left( x-g(x_0)\right)^\alpha
+    $$
+    It therefore suffices to show that $ U \times V \times B_{n, m}^k  \to \RR$ mapping $ D  \mapsto \frac{\partial^{|\alpha|} \phi_i}{\partial x^{\alpha}} (g(x_0))$ is smooth for all $1\leq |\alpha| \leq k$. For $|\alpha| = 1$, we have
+    \begin{align*}
+        \frac{\partial \phi_i}{\partial x_j}(g(x_0)) & = \frac{\partial (h_i \circ f \circ g^{-1})}{\partial x_j}(g(x_0)) \\ 
+        & = \sum_{k=1}^m \frac{\partial h_i}{\partial y_k} (y_0) \frac{\partial (f\circ g^{-1})_k}{\partial x_j} (g(x_0))\\ 
+        & = \sum_{k=1}^m \frac{\partial h_i}{\partial y_k} (y_0) \frac{\partial (f_k\circ g^{-1})}{\partial x_j} (g(x_0))\\ 
+        & = \sum_{k=1}^m \frac{\partial h_i}{\partial y_k} (y_0) \sum_{k' = 1}^n \frac{\partial f_k}{\partial x_{k'}} (x_0) \frac{\partial (g^{-1}_{k'})}{\partial x_j} (g(x_0))
+    \end{align*}
+    Here we have used the chain rule twice. Thus we see $\frac{\partial^{|\alpha|} \phi_i}{\partial x^{\alpha}} (g(x_0))$ with $|\alpha| = 1$ can be expressed as sums and products of terms of the form
+    
+    \begin{alignat*}{3}
+        \frac{\partial h_i}{\partial y_j} (y_0) \quad \quad & \frac{\partial f_i}{\partial x_j} (x_0) \quad \quad  && \frac{\partial g^{-1}_i}{\partial x_j} (g(x_0)) \\
+    \end{alignat*}
+    Here $f_i$ means the $i$-th component of $f$ defined above, not the $f_i$ as part of $D$, the only difference being a translation by $x_0$ in the input. Each of the above varies smoothly with $D$: $h_i$ and $g_i$ are both smooth, so too are their partial derivatives. Now $\frac{\partial f_i}{\partial x_j}(x_0)$ results in the coefficient of the monomial $x_j$, all of which vary smoothly with $f_i$. For general $|\alpha|$ we may see that $\frac{\partial^{|\alpha|} \phi_i}{\partial x^{\alpha}} (g(x_0))$ be expressed as sums and products of terms of the following forms
+    
+    \begin{alignat*}{3}
+        \frac{\partial^{\beta}}{\partial y^\beta}\frac{\partial h_i}{\partial y_j} (y_0) \quad \quad & \frac{\partial^{\beta'}}{\partial x^{\beta'}}\frac{\partial f_i}{\partial x_j} (x_0) \quad \quad  && \frac{\partial^{\beta''}}{\partial x^{\beta''}}\frac{\partial g^{-1}_i}{\partial x_j} (g(x_0)) 
+    \end{alignat*}
+    This can be seen by using the multivariate generalisation of Faà di Bruno's formula: \href{https://www.ams.org/journals/tran/1996-348-02/S0002-9947-96-01501-2/S0002-9947-96-01501-2.pdf}{LINK}. (Cite this properly). 
+    
+    
+\end{proof}
+
+
+\begin{definition}
+    We now describe charts on $J^k(X, Y)$. Let $(\phi, U)$ and $(\psi, V)$ be charts on $X, Y$ respectively. Then $\psi_* \circ (\phi^{-1})^*: J^k(U, V) \to J^k(\phi(U), \psi(V))$. We define the following bijection to be a chart on $J^k(U, V)$: 
+    $$
+    \tau_{U, V} := T_{\phi(U), \psi(V)} \circ \psi_* \circ (\phi^{-1})^*: J^k(U, V) \to \phi(U)\times \psi(V) \times B_{n, m}^k 
+    $$ 
+    In this way we implicitly define a topology on $J^k(X, Y)$ by asking that these charts be homeomorphisms. That these charts have smooth overlap is a direct consequence of \Autoref{convoluted but smooth} and \Autoref{commuting stars}. \\
+\end{definition}
+
+\begin{proposition}
+    $\alpha: J^k(X, Y) \to X$, $\beta: J^k(X, Y) \to Y$ and $\alpha\times \beta: J^k(X, Y) \to X\times Y$ are smooth submersions. 
+\end{proposition}
+
+\begin{proof}
+    Let $(\phi, U), (\psi, V)$ be charts on $X, Y$ respectively. We compute $\alpha$ in local coordinates; let $D = (x_0, y_0, f_1, \dots, f_m)\in \phi(U) \times \phi(V) \times B_{n, m}^k$. As before let $f(x) = y_0 + (f_1(x-x_0), \dots, f_m(x-x_0))$. 
+    \begin{align*}
+        \phi \circ \alpha \circ \tau_{U, V}^{-1} (D) & = \phi\circ \alpha \circ \phi^* \circ \psi_*^{-1} \circ T_{\phi(U), \psi(V)}^{-1} (D) \\ 
+        & = \phi\circ \alpha \circ \phi^* \circ \psi_*^{-1} (j^k(f)(x_0)) \\ 
+        & = \phi \circ \alpha (j^k(\psi^{-1} \circ f \circ \phi)(\phi^{-1}(x_0))) \\ 
+        & = \phi(\phi^{-1}(x_0)) \\ 
+        & = x_0
+    \end{align*}
+    So we see that in local coordinates, $\alpha$ is a smooth submersion. Now for $\beta$: 
+    \begin{align*}
+        \psi \circ \beta \circ \tau_{\phi(U), \psi(V)}^{-1} (D) & = \psi \circ \beta (j^k(\psi^{-1} \circ f \circ \phi) (\phi^{-1}(x_0)) \\ 
+        & = \psi \circ \psi^{-1} \circ f \circ \phi(\phi^{-1}(x_0)) \\ 
+        & = f(x_0) \\ 
+        & = y_0
+    \end{align*}
+    So $\beta$ is also a smooth submersion. Since $T_{x, y} (X\times Y) \cong T_x X \oplus T_y Y$, we see that $\alpha \times \beta$ is a smooth submersion also. \\
+\end{proof}
+
+\begin{proposition}
+    If $h: Y \to Z$ is a smooth map of smooth manifolds, then $h_*: J^k(X, Y) \to J^k(X, Z)$ is smooth. The similar but contravariant statement is also true. 
+\end{proposition}
+
+\begin{proof}
+    This just follows from \Autoref{convoluted but smooth} once a local presentation of $h_*$ is written out. \\
+\end{proof}
+
+\begin{proposition} \label{smooth prolongation}
+    Let $g: X \to Y$ be smooth. Then $j^k g: X \to J^k(X, Y)$ is smooth. 
+\end{proposition}
+
+\begin{proof}
+    Assume first that $g: \RR^n \to \RR^m$ is smooth. Then $j^k g: \RR^n \to J^k(\RR^n, \RR^m)$ is given by 
+    $$
+    x_0 \mapsto (x_0, g(x_0), T_k g_1 (x_0), \dots, T_k g_m (x_0) ) 
+    $$
+    $T_k g_i$ are all smooth, being sums of partial derivatives of the smooth $g_i$. In the general case, the local presentation $\tau_{U, V}\circ j^k g \circ \phi^{-1}$ sends $x_0$ to 
+    $$
+    (x_0, \psi(g(\phi^{-1}(x_0))), T_k (\psi_1 \circ g \circ \phi^{-1}) (x_0), \dots, T_k (\psi_m \circ g \circ \phi^{-1}) (x_0))
+    $$
+    Which is smooth for the same reasons as the local case. \\
+\end{proof}
+
+\subsection{Fibre Bundles}
+\begin{definition}
+    Let $E, X, F$ be smooth manifolds with $\pi: E \to X$ a submersion. We say that $E$ is a fibre bundle over $X$ with fibre $F$ if for all $p\in X$ there exists a neighbourhood $U$ of $p$ and a diffeomorphism $\phi_U: E_U := \pi^{-1}(U) \to U \times F$ such that 
+    $$
+    \begin{tikzcd}
+        E_U \arrow[r, "\phi_U"] \arrow[dr, "\pi"'] & U \times F \arrow[d, "\pi_U"] \\ 
+        & U \\ 
+    \end{tikzcd}
+    $$
+    commutes. Note that this definition implies that $\pi^{-1}(\{p\})$ is diffeomorphic to $F$ for all $p\in X$. Such an open set $U$ is called a \emph{local trivialisation} or trivialising neighbourhood. \\
+\end{definition}
+
+\begin{example}
+    Let $E = X\times F$, with $\pi: E \to X$ the projection onto the first factor. This data defines the so called \emph{trivial fibre bundle} of $E$ over $X$ with fibre $F$.  
+\end{example}
+
+\begin{definition}
+    A map $s: X \to E$ such that $\pi \circ s = id_X$ is called a (global) \emph{section} of the fibre bundle. In general no such map exists. A \emph{local section} is a map $s: U \to E$ such that $\pi(s(x)) = x$ for all $x\in U$. If $U$ is a trivialising neighbourhood, then any smooth function $U \to F$ gives rise to a local section on $U$, observing the commuting diagram above. 
+\end{definition}
+
+Each Jet bundle $\pi_k: J^k(X, Y) \xrightarrow{\alpha \times \beta} X\times Y$ is a fibre bundle with fibre $B_{n, m}^k$: each point $(x, y) \in X\times Y$ has a neighbourhood $U\times V$ such that $J^k(U, V) = (\alpha \times \beta)^{-1}(U\times V)$ is diffeomorphic to $U \times V \times B_{n, m}^k$. \\
+
+For $k \geq l$, we have a fibre bundle $\pi_{k, l}: J^k(X, Y) \to J^l(X, Y)$ sending $[f]$ to $[f]$. The fibre of this bundle is the space $B^k_{n, m} / B^l_{n, m}$ with smooth structure given by identification with Euclidean space. It is clear that the following diagram commutes:
+$$
+\begin{tikzcd}
+    \dots \arrow[r] & J^k(X, Y) \arrow[r, "\pi_{k, k-1}"] \arrow[d, "\pi_k"] & J^{k-1} (X, Y) \arrow[d, "\pi_{k-1}"] \arrow[r, "\pi_{k-1, k-2}"] & \dots\arrow[r, "\pi_{2, 1}"] & J^1(X, Y) \arrow[d, "\pi_1"] \\
+    \arrow[r] \dots & X\times Y \arrow[r, "id"] & X\times Y \arrow[r, "id"]& \dots \arrow[r, "id"]& X\times Y \\
+\end{tikzcd}
+$$
+
+\section{Whitney Topologies}
+\subsection{Whitney $C^k$ topology}
+Denote by $C^\infty(M, N)$ the set of smooth mappings $f: M\to N$. We intend to define a topology on $C^\infty(M, N)$ such that $j^k: C^\infty(M, N) \to C^\infty(X, J^k(X, Y))$ is continuous for example. 
+
+\begin{definition}
+    Fix an integer $k$. Let $U\subset J^k(X, Y)$ be an open set. Define $M(U)$ to be the following
+    $$
+    \{ f\in C^\infty(X, Y) \mid j^k f (X) \subset U\}
+    $$
+    The family of sets $M(U)$ covers $C^\infty(X, Y)$ and $M(U) \cap M(V) = M(U\cap V)$, so constitute a base for some unique topology on $C^\infty(X, Y)$ denoted the \emph{Whitney $C^k$ topology}. \\
+\end{definition}
+
+
+Let us describe a neighbourhood basis of $f\in C^\infty(X, Y)$ in this $C^k$ topology. All manifolds are metrizable, so choose a metric $d$ on $J^k(X, Y)$. The following set is open in $C^\infty(X, Y)$ for any continuous $\delta: X \to \RR^+$:
+$$
+B_\delta(f) = \{ g\in C^\infty(X, Y) \mid d(j^k f (x), j^k g (x)) < \delta(x) \quad \forall x\in X\}
+$$
+\begin{proof}
+    Consider the continuous mapping 
+    \begin{align*}
+        \Delta: J^k(X, Y) \xrightarrow{\alpha^2 \times id} X^2\times & J^k(X, Y) \xrightarrow{id\times j^k f \times id}  X\times J^k(X, Y)^2 \xrightarrow{\delta \times d} \RR \times \RR \xrightarrow{subtraction} \RR 
+    \end{align*} 
+    Sending $[g]$ to $\delta(\alpha [g]) - d(j^k f (\alpha [g]), [g])$. One checks easily that $B_\delta(f) = M(\Delta^{-1} (0, \infty))$. \\ 
+\end{proof}
+We would like to show that any open neighbourhood $W$ of $f$ contains some set of the form $B_\delta(f)$. Let $M(V) \subset W$ be a basic open neighbourhood of $f$. Define $m: X \to \RR$ by sending $x$ to $d(j^k f(x), V^c \cap \alpha^{-1}(x))$. This $m$ is not continuous and we may even have $m(x) = \infty$ if $\alpha^{-1}(x) \subset V$. Notice that $m(x) \neq 0$. Now $m$ is bounded below on each compact $K \subset X$, which simply follows once we show $j^f$ is continuous, hence $j^k(K)$ is compact. ($d(K, C) > 0$ for $K$ compact and $C$ is closed in a metric space). Via a partition of unity argument 
+\footnote{Let $\mathcal{U}$ be an open cover of $X$ with each element having compact closure. Then a smooth $\delta_{U}: U \to \RR$ exists such that $\delta_U (u) < m(u)$ for all $U\in \mathcal{U}$ and $u\in U$ ($\delta_U \equiv$ constant). Obtain a partition of unity subordinate to $\mathcal{U}$ and set $\delta$ to be the sum of the corresponding $\rho_U \cdot \delta_U$ terms. We may assume that $\delta_U \leq 1$ for all $U\in \mathcal{U}$, then this locally finite sum will yield a well defined continuous $\delta: M \to \RR$ such that $\delta(x) < m(x)$ for all $x\in M$.}
+we obtain a continuous $\delta: X \to \RR$ everywhere less than $m$. Now very much by construction we have that $B_\delta (f) \subset M(V)$. Lastly, if $B_\delta(f), B_\eta(f)$ are two neighbourhoods, then $\beta(x) = \min(\delta(x), \eta(x))$ is continuous, with $B_\delta(f) \cap B_\eta(f) = B_\beta(f)$, so these sets constitute a neighbourhood base. \\
+
+\begin{remark}
+    Consider the following map
+    $$
+    j^k : C^\infty(X, Y) \to C^0(X, J^k(X, Y))
+    $$
+    Sending $f$ to $j^k f$. If $j^k f = j^k g$, then $f(x) = \beta (j^k f (x)) = \beta (j^k g(x)) = g(x)$, so this map is injective. Recall the compact open topology (C/O for short) on the space of continuous mappings, with subbase given by sets of the form $S(K, U) = \{ f \mid f(K) \subset U\}$. Define the \emph{Wholly-open topology} (WO) on the space of continuous mappings to be generated by sets of the form $S(X, U)$ where $X$ is the 'whole' space. The Whitney $C^k$ topology is equivalently defined as the initial topology (subspace) with respect to the above map. If we give $C^\infty(X, Y)$ the initial topology with respect to the C/O topology, we call this the compact open $C^k$ topology. Note if $X$ is compact, both topologies agree.  \\
+\end{remark}
+
+By the previous remark, if $X$ is compact, then $C^\infty(X, Y)$ with the Whitney $C^k$ topology is a subset of the completely metrizable space $C^\infty(X, J^k(X, Y))$ (endowed with the C/O topology). Given a complete metric $d$ on $J^k(X, Y)$, the associated metric on $C^\infty(X, Y)$ is $d'(f, g) = \sup_{x\in X} d(j^k f (x), j^k g(x))$. So $f_n \to f$ iff $j^k f_n \to j^k f$ uniformly (iff $f_n$ and all order $\leq k$ partial derivatives converge uniformly to those of $f$, in the local case). In fact, if $X$ is compact, the embedding $j^k$ above is closed and so this metric is itself complete. See \cite{UGLYLATEX}, lemma on page 32. \\
+
+The Whitney $C^k$ topology gives us plenty of 'control at infinity' with respect to convergence, as the next (unproved) proposition will show. If $X$ is not compact, the Whitney $C^k$ topology contains many open sets, in fact it is not even second countable, as can be seen in \cite{singularities}. 
+\begin{proposition}
+    In $C^\infty(X, Y)$ with the Whitney $C^k$ topology, $f_n \to f$ if and only if there exists some compact $K\subset X$ such that $j^k f_n \xrightarrow{uniformly} j^k f$ on $K$ and $f_n|_{K^c} \neq f|_{K^c}$ for only finitely many $n$.  
+\end{proposition}
+
+\begin{remark}
+    On $C^0 (X, Y)$ we may define the so called \emph{Graph topology} given by the basis elements
+    $$
+    G(U) = \{ f \mid \Gamma_f \subset U\}
+    $$
+    where $U \subset X\times Y$ is open. The graph topology is finer than the compact open topology, hence it is Hausdorff when $Y$ is. To see this, if $f\in S(K, U)$ then we may set $V = \left(f^{-1}(U)\times U\right) \cup \left( K^c \times Y\right)$, then $G(V) \subset S(K, U)$ is a neighbourhood of $f$. The Whitney $C^0$ topology on $J^0(X, Y)\cong X\times Y$ is exactly the graph topology. More interesting is the fact that the graph topology agrees with the wholly open topology on the image of the embedding $j^k$ above, see \cite{UGLYLATEX} page 34. Therefore, the Whitney $C^k$ topology is Hausdorff. \\
+\end{remark}
+
+\subsection{Whitney $C^\infty$ topology}
+
+\begin{definition}
+    Let $W_k$ be the collection of open subsets of $C^\infty(X, Y)$ in the Whitney $C^k$ topology. We define the \emph{Whitney $C^\infty$ topology} on $C^\infty(X ,Y)$ to be generated by the family $W = \cup_{i=1}^\infty W_k$. \\
+\end{definition}
+
+\begin{remark}
+    Firstly note that $W_k \subset W_l$ whenever $k \leq l$. Suppose that $M(U) \in W_k$, so that $U \subset J^k(X, Y)$ is open. We would like to show that $M(U)$ is open in the Whitney $C^l$ topology. Now observe that the following diagram commutes for any $f: X\to Y$:
+    $$
+    \begin{tikzcd}
+        X \arrow[r, "j^k f"] \arrow[dr, "j^l f"'] & J^k(X, Y)  \\ 
+        & J^l(X, Y) \arrow[u, "\pi_{l, k}"'] \\ 
+    \end{tikzcd}
+    $$
+    So $j^kf (x) \in U$ if and only if $j^l f(x) \in \pi_{l, k}^{-1}(U)$, this being an open subset of $J^l(X, Y)$. Thus we see that $M(U) = M(\pi_{l, k}^{-1}(U))$. This discussion helps to show that $W$ is a well-defined basis. In the way of intuition, the Whitney $C^\infty$ topology on $C^k(\RR, \RR)$ allows us to distinguish between $e^x$ and $e^x + x^k$ for \emph{any} $k$, whereas this difference would be invisible in the Whitney $C^{k-1}$ topology. (But not in $C^n$ topology for $n > k-1$).  \\
+\end{remark}
+
+\begin{definition}
+    A Baire space is a topological space $X$ such that the intersection of countably many open dense sets is again dense. 
+\end{definition}
+
+Note that in a general topological space, any finite intersection of open dense sets is dense. A Baire space is somehow 'topologically large', in the sense that it is not \href{https://en.wikipedia.org/wiki/Meagre_set}{meagre} within itself. See Proposition 3.3 in \cite{singularities} for a proof that $C^\infty(X, Y)$ with the Whitney $C^\infty$ topology is a Baire space. This adds emphasize to any set claiming to be dense within this topology, see \nameref{transversality section}.
+
+\begin{proposition} \label{map to prolongation is cts}
+    Let $X, Y$ be smooth. The mapping 
+    $$
+    j^k: C^\infty(X, Y) \to C^\infty(X, J^k(X, Y))
+    $$
+    is continuous in the Whitney $C^\infty$ topology (it is well defined by \Autoref{smooth prolongation}). 
+\end{proposition}
+
+\begin{proof}
+    First define a map 
+    $$
+    \alpha_{k, l}: J^{k+l} (X, Y) \to J^l(X, J^k(X, Y))
+    $$
+    by sending $[h]$ to $j^l(j^k h) (x)$. Here we know that $j^k h: X \to J^k(X, Y)$ is a smooth mapping, so $j^l (j^k h)$ is defined, being a map $X \to J^l(X, J^k(X, Y))$. In local charts we have a map
+    \begin{align*}
+        J^{k+l}(\phi(U), \psi(V)) \cong \phi(U) \times \phi(V) \times B_{n, m}^{k+l} & \to \phi(U) \times \left( \phi(U) \times \psi (V) \times B_{n, m}^k \right) \times B_{n, m'}^l \\
+        & \cong J^l(\phi(U), J^k(\phi(U), \psi(V)) \\
+    \end{align*}
+    Here $m' = \dim J^k(X, Y)$. This map sends $(x, y, f_1, \dots, f_m)$ to 
+    $$
+    (x, (x, y, \tilde{f}_1, \dots, \tilde{f}_m), g_1, \dots, g_{m'})
+    $$
+    Where $f$ is made up from $(x, y, f_1, \dots, f_m)$ as in \Autoref{convoluted but smooth}. Here $\tilde{f}_i$ is truncation of $f_i$ to order $k$ and $g_i$ is the Taylor polynomial of $(j^k f)_i$ of order $l$. Now we see that $j^l (j^k h) (x)$ only depends on the order $\leq k+l$ partial derivatives of $h$ at $x$ so $\alpha_{k, l}$ is well defined and smooth. \\
+    
+    Let $U\subset J^l(X, J^k(X, Y))$ be open, then $M(U)$ is a basic open subset of $C^\infty(X, J^k(X, Y))$. We would like to show that $(j^k)^{-1}(M(U))$ is open. From above we know that $\alpha_{k, l}^{-1}(U) \subset J^{k+l}(X, Y)$ is open. Obvserving the following commutative diagram allows us to make the calculation that $(j^k)^{-1} (M(U)) = M((\alpha_{k, l})^{-1} (U))$: 
+    $$
+    \begin{tikzcd}
+        X \arrow[dr, "j^{k+l} f"'] \arrow[r, "j^l (j^k f)"] & J^l(X, J^k(X, Y)) \\ 
+        & J^{k+l}(X, Y) \arrow[u, "\alpha_{k, l}"'] \\ 
+    \end{tikzcd}
+    $$
+\end{proof}
+
+\begin{proposition}
+    Let $X, Y, Z$ be smooth manifolds with $f: Y \to Z$ smooth. Then $f_*: C^\infty(X, Y) \to C^\infty(X, Z)$ is continuous in the Whitney $C^\infty$ topology. 
+\end{proposition}
+
+\begin{proof}
+    Actually this map is continuous in the Whitney $C^k$ topology for every $k$. Let $U\subset J^k(X, Y)$ be open, so that $M(U)$ is a basic open set in $C^\infty(X, Y)$. Recall that $J^k(X, f) := f_*: J^k(X, Y) \to J^k(X, Z)$ is smooth. Thus $(J^k(X, f))_*: C^0(X, J^k(X, Y)) \to C^0(X, J^k(X, Z))$ is continuous in the wholly open topology (Easy to check). The following commutative diagram shows that $(f_*)^{-1}(M(U)) = M(f_*^{-1}(U))$: 
+    
+    $$
+    \begin{tikzcd}
+        J^k(X, Y) \arrow[r, "f_*"] \arrow[d, "j^k"] & J^k(X, Z) \arrow[d, "j^k"] \\ 
+        C^0(X, J^k(X, Y)) \arrow[r, "{J^k(X, f)_*}"] & C^0(X, J^k(X, Z)) 
+    \end{tikzcd}
+    $$
+\end{proof}
+
+\subsection{$C^\infty(X, \RR)$}
+We shall see that $C^\infty(X, \RR)$ has the structure of a topological ring, that is, addition and multiplication of functions form continuous pairings. 
+
+
+
+
+\pagebreak
+
+\section{Transversality} \label{transversality section}
+
+\subsection{Definitions and Basic Results}
+Let $f: X \to Y$ be a smooth map between smooth manifolds, with $W\subset Y$ a smooth submanifold. We say that $f$ is \emph{transversal to W} at $x\in X$ if either $f(x) \not \in W$, or $f(x) \in W$ while 
+$$
+T_{f(x)} W + df_x(T_x(X)) = T_{f(x)} Y
+$$
+We write this as $f\pitchfork W$ at $x$. If $f\pitchfork W$ at all points of $x$ we write $f\pitchfork W$, then $f$ is transversal to $W$. If $f$ is a smooth embedding, we can identify the pushforward of the tangent space with that of the ambient manifold $Y$, then we talk about transversality of submanifolds. 
+
+\begin{example}
+    Consider $W = \RR \subset \RR^2 = Y$ as the submanifold given by the $x$-axis. Then $f: \RR \to \RR^2$ given by $x \mapsto (x, x^2 + c)$ will be transversal to $W$ for all values of $c$ other than zero; if $c=0$ then $T_{f(x)} W + f_*(T_x(X))$ has dimension $1$ at $x=0$. For $c>0$ we have no intersection, but this satisfies transversality. For $c<0$ the intersection will consist of two points, transversality holds at each. \par 
+\end{example}
+
+\begin{example}
+    Two spheres in $\RR^3$ will be transversal if at no point of their intersection do they touch tangentially, because the dimension sum of these submanifolds is greater than that of the ambient space. The intersection of two transversal spheres will either be the empty set or a circle.
+\end{example}
+
+Tangentiality should be a considered a very fragile property, easily broken by small perturbations of the submanifolds involved. We will see soon that transversality is conversely an 'open' condition.  \par
+A simple observation tells us that if the dimension of $X$ is less than the codimension of the submanifold $W$, then $f: X \to Y$ is transversal to $W$ if and only if $f(X) \cap W = \emptyset$. For example, two intersecting lines in $\RR^3$ cannot be transversal. In the other extreme, a submersion will be transversal to any submanifold. 
+
+
+\begin{lemma} \label{transversality equiv}
+    Let $f: X \to Y$ be a smooth map of smooth manifolds, $W \subset Y$ a submanifold. Suppose there exists a neighbourhood $U$ of $f(p) \in W$ and submersion $\phi: U \to \RR^{\text{codim} (W)}$ such that $\phi^{-1}(0) = W \cap U$. Then $f\pitchfork W$ at $p$ iff $\phi \circ f$ is a submersion at $p$. 
+\end{lemma}
+
+This lemma is a sort of equivalent definition of transversality, as such a neighbourhood always exists: There is $\phi: U \to \RR^{\dim (Y)}$ such that $\phi^{-1}(\{ 0\} \times \RR^{\dim (W)}) = W \cap U$. Compose $\phi$ with the projection $\pi: \RR^{\text{codim}(W)} \times \RR^{\dim (W)} \to \RR^{\text{codim}(W)}$. \par
+For intuition, picture a submanifold $W$ of (co)dimension 1 on a surface $Y$, with $f: \RR \to Y$ a line 'crossing' $W$ at some point $f(p)$. For $f \pitchfork W$ to hold at $f(p)$, somehow this crossing must intersect $W$ transversally, that is to say, not tangentially. Looking at a charted neighbourhood of this crossing point (sending $f(p)$ to $0$), we will see a crossing of the $x$-axis $\RR$ within $\RR^2$. We then collapse down the $x$-axis and ask that no vector tangent to $f$ at $0$ is annihilated. This will induce a submersion at $0$ if $f\pitchfork W$ at $p$, and force $f \pitchfork W$ at $p$ if this collapsing is a submersion. 
+
+\begin{proof}
+    In the context of the lemma, $\ker (d\phi_{f(p)}) = T_{f(p)} W$. Right to left inclusion is obvious, as $\phi$ collapses $W \cap U$ down to zero. Left to right inclusion follows because $\phi$ is a submersion. Now $f\pitchfork W$ at $p$ iff
+    \begin{align*}
+        T_{f(p)} Y & = T_{f(x)} W + \text{Im} (df_x) \\
+        & = \ker(d\phi_{f(p)}) + \text{Im}(df_x) 
+    \end{align*}
+    $\phi \circ f$ is a submersion at $p$ iff $d(\phi\circ f)_p = d\phi_{f(p)} \circ df_p$ is surjective. But $d\phi_{f(p)}$ is already surjective. Thus we want Im$(df_p)$ to contain some subspace of $T_{f(p)} Y$ complementary to the kernal of $d\phi_{f(p)}$. The above equation says exactly this. 
+\end{proof}
+
+\begin{lemma} \label{implicit transverse theorem}
+    Let $f: X \to Y$ be a smooth map of smooth manifolds. Let $W \subset Y$ be a smooth submanifold and suppose that $f\pitchfork W$. Then $f^{-1}(W)$ is a smooth submanifold of $X$ with codim$(f^{-1}(W)) =$ codim$(W) =: k$. 
+\end{lemma}
+
+\begin{proof}
+    It suffices to show that any $p \in f^{-1}(W)$ has a neighbourhood $U$ such that $U \cap f^{-1}(W)$ is a submanifold. Using \Autoref{transversality equiv} and the implicit function theorem, this is easy.
+\end{proof}
+
+This lemma says that the intersection of two transverse submanifolds is again a submanifold, a statement which is very far from true without the transversality condition: If $A \subset \RR^{n}$ is \emph{any} closed set, there is a smooth $f: \RR^n \to \RR$ such that $f^{-1}(0) = A$. Then graph$(f) \subset \RR^{n+1}$ is a smooth submanifold but graph$(f) \cap \RR^n \times \{ 0\} = A \times\{0\}$. 
+
+
+
+
+\subsection{Jet Transversality}
+
+\begin{lemma} \label{open if W closed}
+    Let $X, Y$ be smooth manifolds with $W \subset Y$ a smooth manifold. Then $T_W := \{f\in C^\infty(X, Y)\mid f \pitchfork W \}$ is an open subset in the Whitney $C^\infty$ topology if $W$ is closed. 
+\end{lemma}
+
+\begin{proof}
+    We will actually show that $T_W$ is open in the $C^1$ topology, which is a stronger statement. Firstly we would like to write $T_W$ as $M(U)$ for some $U\subset J^1(X, Y)$. Define $U$ as those $1$-jets $[f]$ such that $f \pitchfork W$ at $\beta f$. Now $U$ is well-defined because the statement '$f\pitchfork W$' only relies on $df$. It is clear then that 
+    $$
+    T_W = \{ f \mid f\pitchfork W\} = \{ f \mid j^1 f (X) \subset U\} = M(U)
+    $$
+    We need to show that $U \subset J^1(X, Y)$ is open. Let $[f_1], [f_2], \dots $ be a convergent sequence in $U^c$, with limit $[f]$. The source map $\beta$ is continuous, since $\beta [f_i] \in W$ for all $i$ and $W$ is closed, then $\beta [f] \in W$. \par 
+    We may now reduce to the Euclidean case using preferred coordinates, where the property of being a submersion is a local one, see \cite{singularities} Proposition 4.5. 
+\end{proof}
+
+
+\begin{lemma}
+    Let $X, B, Y$ be smooth manifolds with $W \subset Y$ a smooth submanifold. Let $F : X \times B \to Y$ be smooth, transversal to $W$. Then for a dense subset of $B$, $f_b: X \to Y$ is transverse to $W$. 
+\end{lemma}
+
+\begin{proof}
+    By $\Autoref{implicit transverse theorem}$, $F^{-1}(W)$ is a smooth submanifold of $X \times B$. Let $\pi: F^{-1}(W) \to B$ be the composite of the inclusion and projection. We will show that $f_b$ is transverse to $W$ if $b$ is a regular value of $\pi$, the lemma then follows from Sard's theorem. \par
+    Let $b \in B$ be a regular value of $\pi$. If $f_b(x) \not \in W$ then $f_b \pitchfork W$ at $x$. If $f_b(x) = y \in W$ then $T_b B = (d\pi)_{(x, y)} \left(T_{(x, b)} F^{-1}(W)\right) $. We then have 
+    \begin{align*}
+        T_{(x, b)} X\times B & = T_x X + T_b B \\ 
+        & \cong T_{(x, b)} \left(X\times \{ b\} \right)+ T_{(x, b)} F^{-1} (W)
+    \end{align*}
+    
+    
+    Finally since $F \pitchfork W$ we have
+    \begin{align*}
+        T_{f_b(x)} Y & = T_{F(x, b)} Y \\ 
+        & = T_{F(x, b)} W + (dF)_{(x, b)} \left( T_{(x, b)} X\times B\right) \\ 
+        & = \dots \quad \text{plug in the above}\\ 
+        & = T_{f_b(x)} W + (df_b)_x \left( T_x X \right)
+    \end{align*}
+    
+    In the last step we used that $dF_{(x, b)}(T_{(x, b)}F^{-1}(W)) = T_{F(x, b)} W$, which is true in general as an addendum to \Autoref{implicit transverse theorem}, see these \href{http://staff.ustc.edu.cn/~wangzuoq/Courses/18F-Manifolds/Notes/Lec11.pdf}{lecture notes}. 
+\end{proof}
+
+\begin{example}
+    Let $f: X \to \RR^n$ be a smooth mapping. Define $F: X \times \RR^n \to \RR^n$ by sending $(x, v)$ to $f(x) + v$. Now $F$ is clearly a submersion, hence it is transversal to any submanifold $W \subset \RR^n$. We then see that for a dense subset $V \subset \RR^n$, the $v$-shifted map $f_v$ is transversal to $W$, for $v\in V$. If $f$ is a smooth embedding onto some submanifold $W'$, we see that $\left(W' + v\right) \pitchfork W$ for dense $V$. So you can always perturb some submanifold $W'$ by an arbitrarly small distance to force it to be transverse to some other $W$. 
+\end{example}
+
+
+\begin{theorem}[Thom's Transversality Theorem] \label{Thoms trans}
+    Let $X, Y$ be smooth manifolds, with $W \subset J^k(X, Y)$ a smooth submanifold. Then 
+    $$
+    T_W = \{ f \mid j^k f \pitchfork W\}
+    $$
+    is a residual subset of $C^\infty(X, Y)$ in the $C^\infty$ topology. Since this topology is a Baire space, $T_W$ is dense. By the remark below $T_W$ is also open if $W$ is closed. 
+\end{theorem}
+
+\begin{remark}
+    If $W \subset J^k(X, Y)$ is a closed submanifold, then \Autoref{open if W closed} says that
+    $$
+    T_W^k =\{ F \in C^\infty(X, J^k(X, Y)) \mid F \pitchfork W\}
+    $$
+    is open. The map $C^\infty(X, Y) \to C^\infty(X, J^k(X, Y))$ sending a map to its prolongation is continuous by \Autoref{map to prolongation is cts}. Therefore the inverse image 
+    $$
+    T_W = \{ f\in C^\infty(X, Y) \mid j^k f \pitchfork W\}
+    $$
+    is open. 
+\end{remark}
+
+\begin{example}
+    Give diff$(X)$ the subspace topology on $C^\infty(X, X)$. Let $x\in X$ be a fixed point of $f \in$ diff$(X)$. We say $x$ is a non-degenerate fixed point iff $df_x: T_x X \to T_x X$ does not have $+1$ as an eigenvalue, or equivalently does not have a non-zero fixed point. It is easy to show that this is equivalent to graph$(df_x) + \Delta_{T_x X} = T_x X \times T_x X$ (which is how we define transversality of subspaces). It is an exercise to show that $j^0 f \pitchfork \Delta_X$ at $p = f(p)$ iff $p$ is a non-degenerate fixed point, here $j^0 f(X)$ is just the graph of $f$.  Thus $j^0 f(X) \cap \Delta_X$ is a submanifold, it has dimension zero since dim$j^0 f(X) = \dim X$, dim$\Delta_X = \dim X$, so if $X$ is compact the non-degenerate fixed points are finite. By Thom's transversality theorem we see that those diffeomorphisms with non-degenerate fixed point form an open dense subset, assuming that diff$(X) \subset C^\infty(X, X)$ is open. 
+\end{example}
+
+
+\begin{corollary}
+    If $\{W_i\}_{i\in \mathbb{N}}$ is a countable collection with $W_i$ a submanifold of $J^{k_i}(X, Y)$, then the set of $f$ such that $j^{k_i} f \pitchfork W_i$ for all $i$ is dense in $C^\infty(X, Y)$. 
+\end{corollary}
+
+\begin{proof}
+    The subset in question is the countable intersection of open dense sets, by \Autoref{Thoms trans}. Since $C^\infty(X, Y)$ is Baire, the result follows. Note that the subset is not necessarily open, but this would be true if the collection was finite and each $W_i$ were closed,  by \Autoref{open if W closed}
+\end{proof}
+
+
+
+
+\subsection{Multi-Jet Transversality}
+For a smooth manifold $X$, define $X^{(s)}$ to be that subset of $X^s$ consisting of $(x_1, \dots, x_n)$ such that $x_i \neq x_j$ for all $1 \leq i, j \leq s$. As a subset, $X^{(s)} \subset X^s$ is open, so constitutes a smooth submanifold. The map $\alpha^s: J^k(X, Y)^s \to X^s$ is a submersion, so we define the following, noting it too is both open and a submanifold
+$$J_s^k(X, Y) := (\alpha^s)^{-1}(X^{(s)})$$
+called the \emph{s-fold k-jet bundle} or more generally a \emph{multijet bundle}. Let $f: X \to Y$ be a smooth map, we define prolongation as follows: 
+\begin{align*}
+    j^k_s f : X^{(s)} \to & J^k_s(X, Y) \\ 
+    (x_1, \dots, x_n) \mapsto & (j^k f(x_1), \dots, j^k f(x_n)) \\  
+\end{align*}
+
+
+
+\begin{theorem} [Multi-Jet Transversality Theorem] \label{multi trans}
+    Let $X, Y$ be smooth manifolds, $W \subset J^k_s(X, Y)$ a submanifold. Let
+    $$
+    T_W = \{ f\in C^\infty(X, Y) \mid j^k_s f \pitchfork W\}
+    $$
+    Then $T_W$ is a residual subset. If $W$ is compact, then $T_W$ is open. 
+\end{theorem}
+
+
+
+\section{The Whitney Embedding Theorem}
+\subsection{The Theorem}
+
+Let $[f] \in J^1(X, Y)_{x, y}$. Define its rank and corank to be that of $(df)_x: T_x X \to T_y Y$. Let 
+$$
+S_r = \{ [f] \in J^1(X, Y) \mid \text{corank}([f]) = r\}
+$$
+
+Then the following lemma is trivial:
+
+\begin{lemma} \label{trivial lemma}
+    $f: X \to Y$ is an immersion if and only if $j^1 f(X) \cap \cup_{r\neq 0} S_r = \emptyset$. 
+\end{lemma}
+
+Less trivial but extremely useful is the fact that $S_r$ is a submanifold of $J^1(X, Y)$ of \emph{co}dimension $(m-q+r)(n-q+r)$, where $n, m$ are the dimensions of $X, Y$ and $q = \min(n, m)$. Recall that $J^1(X, Y)$ is a fibre bundle with typical fibre $B_{n, m}^1$. Now $B_{n, m}^1 = \left(A_n^1 \right)^m$ where $A_n^1$ is the $\RR$-vector space of polynomials of degree less than one (with no consant term) in $n$ variables. We can clearly identify $B_{n, m}^1$ with the space of linear maps $\mathcal{L}(\RR^n, \RR^m)$. \par 
+For example: ($n=3, m=2$) The element $(x_1+x_2 + x_3, 5\cdot x_1) \in B_{n, m}^1$ will correspond to the linear map 
+$$
+\begin{pmatrix}
+    1 & 1 & 1 \\ 
+    5 & 0 & 0 \\
+\end{pmatrix}
+$$
+Define
+$$
+\mathcal{L}^r(V, W) := \{ T \in \mathcal{L}(V, W) \mid \text{corank}(T) = r\}
+$$
+Then in addition to the $S_r$ being submanifolds of $J^1(X, Y)$, they are also sub-fibre bundles with fibre $\mathcal{L}^r(\RR^n, \RR^m)$. 
+
+
+\begin{lemma}
+    The set of immersions from $X$ to $Y$, denoted Im$(X, Y)$, is an open subset of $C^\infty(X, Y)$. 
+\end{lemma}
+
+\begin{proof}
+    Using the formula above, $S_0$ is a codimension zero submanifold, so is \href{https://math.stackexchange.com/questions/1425555/is-every-topological-submanifold-of-codimension-0-open}{necessarily open}. Thus Im$(X, Y) = M(S_0)$ (by \Autoref{trivial lemma}) is open. 
+\end{proof}
+If $\dim(X) > \dim(Y)$, the set of immersions is empty. The \emph{exact} same proof shows that submersions are open, empty if $\dim(X) < \dim(Y)$.  \par
+
+It is not true that immersions are \emph{dense} in $C^\infty(X, Y)$ in general, however. An example where $\dim(X) = \dim(Y)$ is the Möbius strip, which \href{https://math.stackexchange.com/questions/453567/there-is-no-immersion-of-the-m%C3%B6bius-band-in-the-plane}{cannot be immersed in $\RR^2$
+}. If the dimension of the codomain is large compared to the domain, we do see density:
+
+\begin{theorem} [Whitney Immersion Theorem]
+    If $\dim(Y) \geq 2\cdot \dim(X)$, then the set of immersions in $C^\infty(X, Y)$ is open and dense. 
+\end{theorem}
+
+\begin{proof}
+    Openness has already been proved. A quick calculation using the hypothesis shows that for $r\geq 1$
+    $$
+    \text{codim}(S_r) \geq \dim(X)+1
+    $$
+    But then no smooth map $f: X \to J^1(X, Y)$ can intersect $S_r$ non-trivially and transversely simultaneously, in particular not the jet prolongations. So then
+    \begin{align*}
+    \cap_{r\neq 0} T_{S_r} & = \{f \in C^\infty(X, Y) \mid j^1 f \pitchfork S_r \quad r\neq 0\} \\ 
+    & =\{ f \in C^\infty(X, Y) \mid j^1 f \cap S_r = \emptyset \quad  r\neq 0\} \\ 
+    &= \text{Im}(X, Y) \quad \text{ by \Autoref{trivial lemma}}
+    \end{align*}
+    But by \nameref{Thoms trans}, this intersection is open and dense. 
+\end{proof}
+
+Consider the immersion $f: \RR \to \RR^2$ mapping the line into the shape of the greek letter alpha, $\alpha$. Clearly arbitrarily small perturbations of $f$ will not result in an embedding or even a 1-1 immersion. If we compose with the inclusion $\RR^2 \subset \RR^3$ however, we have 'more room' to perturb $f$ to be a 1-1 immersion: 
+
+\begin{theorem} [Whitney's 1-1 Immersion Theorem]
+    Suppose that $\dim(Y) \geq 2\cdot \dim(X) + 1$, then the subset of $C^\infty(X, Y)$ consisting of 1-1 immersions is dense.
+\end{theorem}
+
+\begin{proof}
+    Since the set of immersions is open and dense, we need only show the 1-1 mappings form a dense set. The intersection of the 1-1 mappings with the immersions will then be dense. Consider the submersion $\beta^2: J^0_2(X, Y) \to Y^2$. Then $W = (\beta^2)^{-1}(\Delta Y)$ is a submanifold of codimension equal to $\text{codim}(\Delta Y) = \dim Y > 2 \cdot \dim(X) = \dim X^{(2)}$. Therefore $j^0_2 f : X^{(2)} \to J^0_s(X, Y)$ is transversal to $W$ iff $j^0_2 f (X) \cap W = \emptyset$. It is easy to see that this condition also implies that $f$ is 1-1. The result then follows from the \nameref{multi trans}.  
+\end{proof}
+
+\begin{remark}
+    The 1-1 immersions do not form an open subset in general, for consider the figure-8 mapping $f: \RR \to \RR^2$ where the limits at $\pm$infinity are both the 'intersection point', but no intersection actually occurs. Arbitrarily small pertubations of $f$ will result in a non 1-1 immersion. The obstruction here is non-compactness, see \cite{singularities} or \cite{hirsch} Lemma 1.3. 
+\end{remark}
+
+
+
+\begin{theorem} [Whitney Embedding Theorem]
+    Let $X$ be a smooth manifold of dimension $n$. Then there exists an embedding $X \to \RR^{2n+1}$. 
+\end{theorem}
+
+\begin{proof}
+    Whitney's 1-1 Immersion Theorem tells us that the 1-1 immersions from $X$ to $\RR^{2n+1}$ form a dense subset of $C^\infty(X, \RR^{2n+1})$. Now a proper 1-1 immersion is an embedding, so the existence of such will prove the result. The density mentioned just previously and the following lemma show existence:
+\end{proof}
+
+\begin{lemma}
+    The smooth proper mappings $X \to \RR^m$ form a non-empty open subset of $C^\infty(X, \RR^m)$ (in the Whitney $C^0$ topology). 
+\end{lemma}
+
+\begin{proof}
+    First we construct a proper mapping $X \to \RR$. Let $\mathcal{U} = \{U_1, U_2, \dots\}$ be a sequence of relatively compact sets such that $\overline{U_i} \subset U_{i+1}$ and $X = \cup_i U_i$. Let $\{\rho_i \}_{i=1}^\infty$ be a partition of unity subordinate to $\mathcal{U}$. Define
+    $$
+    f(x) = \sum_{n\in \mathbb{N}} n\cdot \rho_n(x)
+    $$
+    Properness of $f$ follows easily once we show that $f^{-1}([0, k]) \subset U_1 \cup \dots \cup U_k$ for any integer $k$: Let $x\not \in U_1 \cup \dots \cup U_k$. Then
+    \begin{align*}
+        f(x) & = \sum_{n\in \mathbb{N}} n\cdot \rho_n(x) \\ 
+        & = \sum_{n>k} n\cdot \rho_n(x) \\ 
+        & \geq (k+1) \cdot \sum_{k>n} \rho_n(x) \\ 
+        & = (k+1) \\
+    \end{align*}
+    We see that $f$ is proper. Composing with an inclusion $\RR \hookrightarrow \RR^m$ gives another proper map. Now we would like to show that the proper mappings form an open set. Let $f: X \to \RR^m$ proper be given. Consider the composition
+    $$
+    J^0(X, \RR^m) = X\times \RR^m \xrightarrow{f\times id} \RR^m \times \RR^m \xrightarrow{d} \RR^{\geq 0} \\
+    $$
+    The inverse image of $[0, 1)$ will be the open set
+    $$
+    V = \{ (x, y) \in X\times \RR^m \mid d(f(x), y) < 1\}
+    $$
+    Then $M(V) = \{ h\in C^\infty(X, \RR^m) \mid j^0 h(X) \subset V\}$ is open in $C^\infty(X, \RR^m)$. Let $g\in M(V)$, we wish to show that $g$ is proper. But note that $g^{-1}(\overline{B}_r) \subset f^{-1}(\overline{B}_{r+1})$ by construction. So $g^{-1}(\overline{B}_r)$ is a closed ($g$ cts) subset of a compact set, since $f$ is proper, hence compact. Any compact $K \subset \RR^m$ lies inside of such a closed ball so $g$ is proper. 
+\end{proof}
+
+
+
+
+\section{Morse Theory}
+Since $\RR$ has dimension 1, the only 'singularity' submanifolds $S_r$ in $J^1(X, Y)$ are $S_0$ and $S_1$. So $p$ is a critical point of $f: X \to \RR$ if and only if $j^kf(p) \in S_1$. 
+
+\begin{definition}
+    Let $f:X \to \RR$ be smooth and $p\in X$ a critical point of $f$. Then $p$ is called a non-degenerate critical point if $j^1 f (p) \pitchfork S_1$ at $p$. If the only critical points of $f$ are non-degenerate, we say that $f$ is a \emph{Morse function}. 
+\end{definition}
+
+\begin{theorem}
+    The set of Morse functions is open and dense in $C^\infty(X, \RR)$. 
+\end{theorem}
+
+\begin{proof}
+    Let $p \in X$. Then $j^1 f (p) \in S_1$ if and only if $p$ is a critical point. Since $f$ is Morse, $j^1 f $ only intersects $S_1$ transversally. So Thom's Transversality Theorem implies the result. 
+\end{proof}
+
+
+\begin{example}
+    Recall from calculus that the second derivative of a function $f: \RR \to \RR$ may help as describe $f$ at its critical points, concave up or concave down, as long as the second derivative does not vanish. The function $f(x) = x^3$ has a degenerate critical point at $x=0$, but can be perturbed slightly to have only non-degenerate critical points; $f(x) = x^3 - \epsilon x$. 
+\end{example}
+
+
+
+
+\begin{proposition}
+    Let $U \subset \RR^n$ be open and $f: U \to \RR$ be smooth. Suppose $x\in U$ is a critical point of $f$, then $x$ is a non-degenerate critical point if and only if the Hessian matrix of $f$ at $x$ is non-singular. 
+\end{proposition}
+
+\begin{proof}
+    We have 
+    \begin{align*}
+        J^1(U, \RR) & \xrightarrow{diffeomorphic} U \times \RR \times \hom (\RR^n, \RR) \\ 
+        [f]_{x, y} & \mapsto (x, y, (df)_x) \\ 
+    \end{align*}
+    
+    Notice that $\pi: J^1(U, \RR) \to \hom(\RR^n, \RR)$ is a submersion and $\pi^{-1}(0) = S_1$. By \Autoref{transversality equiv}, we see that $j^1 f \pitchfork S_1$ if and only if $\pi \circ j^1 f$ is a submersion at $x$. But 
+    $$\pi \circ j^1 f (x) = \left( \frac{\partial f}{\partial x_1} (x), \dots, \frac{\partial f}{\partial x_n} (x)\right)$$
+    So $j^1 f \pitchfork S_1$ if and only if the mapping $\RR^n \to \RR^n$ given by 
+    $$
+    x\mapsto \left( \frac{\partial f}{\partial x_1} (x), \dots, \frac{\partial f}{\partial x_n} (x)\right)
+    $$
+    is a submersion, if and only if the Hessian is non-singular. 
+\end{proof}
+
+
+\begin{lemma} [Morse Lemma]
+    Let $f: X \to \RR$ be smooth with non-degenerate critical point $x\in X$. Then there exists a chart $(\phi, U)$ about $x$ such that $f$ is given in local coordinates on $U$ by 
+    $$
+    f(x_1, \dots, x_n) = f(p) - (x_1^2 + \dots + x_k^2) + (x_{k+1}^2 + \dots + x_n^2)
+    $$
+    The number $k$ is an invariant of the critical point $x$, called the \emph{index} $f$ of $x$. 
+\end{lemma}
+
+
+
+\begin{corollary}
+    Non-degenerate critical points are isolated. 
+\end{corollary}
+
+This does not mean that non-degenerate critical points form a closed set:
+$$
+f(x) = 
+\begin{cases} 
+      e^{-1/x^2} \sin^2(\frac{1}{x}) , \quad \text{If } x \neq 0 \\
+      0, \quad \text{otherwise}
+\end{cases}
+$$
+defines a smooth function $\RR \to \RR$ with countably many non-degenerate critical points. There is a degenerate critical point at the origin which is a limit of non-degenerate critical points. If $X$ is compact however, then any Morse function $f: X \to \RR$ has only finitely many critical points, by the above corollary. Examples of smooth maps to $\RR$ with non-isolated critical points are easy to come by, consider $f: \RR^2 \to \RR$ sending $(x, y)$ to $x^2$. The entire $y$-axis consists of critical points of $f$. If $f(x, y) = x^2 y^2$ then the union of both axis is exactly the critical point set, this is not even a submanifold of $\RR^2$. \\
+
+The next proposition allows us to conclude using the fact that Morse functions are open and dense, that given any smooth $f: X \to \RR$, there is an arbitrarily close (in the sense of the Whitney $C^\infty$ topology on $C^\infty(X, \RR)$ ) Morse function with distinct critical values. 
+
+\begin{proposition}
+    The subset of $C^\infty(X, \RR)$ consisting of Morse function with distinct critical values is a residual, hence dense subset. 
+\end{proposition}
+
+\begin{proof}
+    Let 
+    $$S = (S_1 \times S_1) \cap J^1_2(X, \RR) \cap (\beta^2)^{-1}(\Delta \RR) \subset J^1_2(X, \RR)^2$$
+    We show that $S$ is a submanifold of codimension equal to $2\cdot \dim(X) + 1$. Let $U\subset X$ be a coordinate neighbourhood diffeomorphic to $\RR^n$ where $n = \dim(X)$. Then in this local case we have 
+    \begin{align*}
+        J^1_2(X, \RR) \cong (\RR^n \times \RR^n - \Delta \RR^n) \times (\RR \times \RR) \times \hom(\RR^n, \RR)^2
+    \end{align*}
+    Then $S = (\RR^n \times \RR^n - \Delta \RR^n) \times (\RR \times \RR - \Delta \RR) \times (0, 0)$. We see locally (sufficiently) that $S$ is a submanifold of codimension $2\cdot n + 1$. \par
+    Applying the \nameref{multi trans}, we see that maps $f: X \to \RR$ such that $j^1_2 f \pitchfork S$ is a residual set. Now since $S$ has codimension equal to $2\cdot n + 1$ and $j^1_2 f$ maps from $X \times X - \Delta X$, we see that transversality holds only if $j^1_2(X\times X - \Delta X) \cap S = \emptyset$. But if $x_1 \neq x_2$ are critical values of $f$, then $j^1_2f (x_1, x_2) \in (S_1\times S_1) \cap J^1_2(X, \RR)$ but $j^1_2 f(x_1, x_2) \not \in S$. Looking at the definition of $S$ above, we see that $j^2_1 f(x_1, x_2) \not \in (\beta^2)^{-1}(\Delta \RR)$, so the critical points have distinct values.  
+\end{proof}
+
+
+\section{Questions}
+\begin{itemize}
+    \item 
+\end{itemize}
+
+
+
+
+
+
+\bibliography{bibliography}
+\bibliographystyle{ieeetr}
+
+
+\end{document}
